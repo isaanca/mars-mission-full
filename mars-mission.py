@@ -7,7 +7,8 @@ import Tkinter
 
 # The next four lines of code are constants that we will use throughout the rest
 # of the file, as they don't change unless you, the programmer, want them to
-# based on your particular version of the game.
+# based on your particular version of the game. A common programming convention
+# is to have constant variables in all caps.
 
 # This adjusts the size of your Tkinter window. You can change this based on
 # your preferences and device, although we recommend that the width is a minimum
@@ -145,6 +146,38 @@ def draw(canvas):
     # argument of the draw function.
     canvas.after(DELAY, draw, canvas)
 
+# This function runs when the player clicks the screen, starting the game.
+def start_game(event):
+        # The blank item provides a buffer for the loop. It is in all caps
+        # because it is a constant as well.
+        TEXT_ITEMS = ["arrow keys to move", "don't touch the ground",
+            "3", "2", "1", ""]
+
+        # This callback function writes an item from TEXT_ITEMS on the canvas,
+        # and calls itself until it has displayed every item. Once it has
+        # finished, it calls the draw loop to start the game.
+        def write_on_canvas(item_number):
+            # This deletes everything currently on the window.
+            canvas.delete(Tkinter.ALL)
+            # This displays the current text item from the list.
+            canvas.create_text(WIDTH/2, HEIGHT/2, text=TEXT_ITEMS[item_number],
+                fill="white", font=("ubuntu", 24))
+            # If there are items left in the list, it will call itself after
+            # one second, writing the next item in the list. 1 is subtracted
+            # from the length of the list because it should only call itself if
+            # there is another item left in the list.
+            if item_number < (len(TEXT_ITEMS)-1):
+                canvas.after(1000, write_on_canvas, item_number+1)
+            else:
+                # Otherwise, it will run the draw loop for the first time,
+                # starting the game. The draw loop will continue to call itself
+                # from here.
+                draw(canvas)
+
+        # Writes the first item from TEXT_ITEMS on the canvas. Since it is a
+        # callback function it will automatically iterate through the list.
+        write_on_canvas(0)
+
 # The Tk class from the Tkinter library is an object which can hold graphical
 # elements called widgets. It is the root of our Tkinter window.
 root = Tkinter.Tk()
@@ -173,9 +206,14 @@ root.bind('<Right>', player.accelerate_x_pos)
 # player to accelerate upwards whenever the up arrow is pressed.
 root.bind('<Up>', player.accelerate_y)
 
-# Calls the draw loop for the first time. From here it will repeatedly call
-# itself.
-draw(canvas)
+# Calls start_game, which displays game instructions and then starts the draw
+# loop. Button-1 is the left mouse button, so the game starts when the user
+# clicks the window.
+root.bind('<Button-1>', start_game)
 
-# Keeps the Tkinter window open.
+# Displays text instructing the user to click the screen.
+canvas.create_text(WIDTH/2, HEIGHT/2, text="click to begin", fill="white",
+    font=("ubuntu", 24))
+
+# This method of root (an instance of Tk) keeps the Tkinter window open.
 root.mainloop()
